@@ -342,6 +342,7 @@ def video_to_piano(video: str, prompt: str, num_steps: int, e2tts, stft):
 
 
 from cog import BasePredictor, Input, Path
+from typing import Optional
 
 
 class Predictor(BasePredictor):
