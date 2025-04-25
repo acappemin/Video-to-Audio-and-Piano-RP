@@ -341,7 +341,7 @@ def video_to_piano(video: str, prompt: str, num_steps: int, e2tts, stft):
     return video_save_path
 
 
-from cog import BasePredictor, Input, Path
+from cog import BasePredictor, Input, Path as CogPath
 from typing import Optional
 
 
