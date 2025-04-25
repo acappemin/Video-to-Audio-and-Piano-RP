@@ -22,23 +22,22 @@ from huggingface_hub import hf_hub_download, snapshot_download
 
 import os
 
-import gc
 
+def download():
+    if True:
+        model_path = "./ckpts/"
 
-if True:
-    model_path = "./ckpts/"
+        if not os.path.exists(model_path):
+            os.makedirs(model_path)
 
-    if not os.path.exists(model_path):
-        os.makedirs(model_path)
+        #file_path = hf_hub_download(repo_id="lshzhm/Video-to-Audio-and-Piano", filename=".", local_dir=model_path)
+        file_path = snapshot_download(repo_id="lshzhm/Video-to-Audio-and-Piano", local_dir=model_path)
 
-    #file_path = hf_hub_download(repo_id="lshzhm/Video-to-Audio-and-Piano", filename=".", local_dir=model_path)
-    file_path = snapshot_download(repo_id="lshzhm/Video-to-Audio-and-Piano", local_dir=model_path)
-
-    print(f"Model saved at: {file_path}")
-    
-    device = "cpu"
-else:
-    device = "cuda"
+        print(f"Model saved at: {file_path}")
+        
+        device = "cuda"
+    else:
+        device = "cuda"
 
 
 import torch
@@ -201,8 +200,7 @@ def load(device):
     return e2tts, stft
 
 
-e2tts, stft = load(device)
-gc.collect()
+#e2tts, stft = load(device)
 
 
 def run(e2tts, stft, arg1, arg2, arg3, arg4, piano):
@@ -311,7 +309,7 @@ def run(e2tts, stft, arg1, arg2, arg3, arg4, piano):
             audio_gr.write_audiofile(out_dir+"generated/"+name+".wav", fps=24000)
 
 
-def video_to_audio(video: str, prompt: str, num_steps: int):
+def video_to_audio(video: str, prompt: str, num_steps: int, e2tts, stft):
     
     video_path = tempfile.NamedTemporaryFile(delete=False, suffix='.mp4').name
     
@@ -323,12 +321,11 @@ def video_to_audio(video: str, prompt: str, num_steps: int):
         shutil.copy(video, video_path)
     
     video_save_path = run(e2tts, stft, video_path, prompt, len(prompt)==0, num_steps, False)
-    gc.collect()
     
     return video_save_path
 
 
-def video_to_piano(video: str, prompt: str, num_steps: int):
+def video_to_piano(video: str, prompt: str, num_steps: int, e2tts, stft):
     
     video_path = tempfile.NamedTemporaryFile(delete=False, suffix='.mp4').name
     
@@ -340,7 +337,6 @@ def video_to_piano(video: str, prompt: str, num_steps: int):
         shutil.copy(video, video_path)
     
     video_save_path = run(e2tts, stft, video_path, prompt, len(prompt)==0, num_steps, True)
-    gc.collect()
     
     return video_save_path
 
@@ -352,7 +348,8 @@ class Predictor(BasePredictor):
     def setup(self) -> None:
         """Load the model into memory to make running multiple predictions efficient"""
         # self.model = torch.load("./weights.pth")
-        pass
+        download()
+        self.e2tts, self.stft = load(device)
 
     def predict(
         self,
@@ -367,8 +364,8 @@ class Predictor(BasePredictor):
         # return postprocess(output)
         video = str(video) if video is not None else None
         if not if_piano:
-            video_save_path = video_to_audio(video, prompt, v2a_num_steps)
+            video_save_path = video_to_audio(video, prompt, v2a_num_steps, self.e2tts, self.stft)
         else:
-            video_save_path = video_to_piano(video, prompt, v2a_num_steps)
+            video_save_path = video_to_piano(video, prompt, v2a_num_steps, self.e2tts, self.stft)
         return CogPath(video_save_path)
 
