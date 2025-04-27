@@ -358,7 +358,7 @@ class Predictor(BasePredictor):
         prompt: str = Input(description="Video-to-Audio Text Prompt", default=""),
         v2a_num_steps: int = Input(description="Video-to-Audio Num Steps", default=25),
         if_piano: bool = Input(description="If Generating Piano Music", default=False),
-    ) -> Path:
+    ) -> CogPath:
         """Run a single prediction on the model"""
         # processed_input = preprocess(image)
         # output = self.model(processed_image, scale)
