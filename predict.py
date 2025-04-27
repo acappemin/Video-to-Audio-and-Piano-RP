@@ -23,6 +23,9 @@ from huggingface_hub import hf_hub_download, snapshot_download
 import os
 
 
+device = "cuda"
+
+
 def download():
     if True:
         model_path = "./ckpts/"
@@ -35,9 +38,10 @@ def download():
 
         print(f"Model saved at: {file_path}")
         
-        device = "cuda"
+        #device = "cuda"
     else:
-        device = "cuda"
+        #device = "cuda"
+        pass
 
 
 import torch
